@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<script src="../jquery.min.js"></script>
+<script src="../jsdo/progress.jsdo.js"></script>
+
+<script>
+	var catalogURI = "http://localhost:8820/web/Catalog/Consultingwerk.SmartComponentsDemo.OERA.Sports2000.CustomerBusinessEntity";
+
+	var options = {
+		serviceURI: "http://localhost:8820",
+		authenticationModel: progress.data.Session.AUTH_TYPE_FORM,
+	}
+
+	var custnum; 
+	var customer;
+
+	session = new progress.data.JSDOSession (options);
+	
+	session.login("demo", "demo")
+	.done (function(jsdosession, result, info) {
+
+		jsdosession.addCatalog (catalogURI)
+		.done(function(jsdosession, result, details) {
+
+			jsdo = new progress.data.JSDO({ name: 'Consultingwerk.SmartComponentsDemo.OERA.Sports2000.CustomerBusinessEntity' });
+			jsdo.subscribe('AfterFill', onAfterFillCustomers, this);	
+			
+			function onAfterFillCustomers(jsdo, success, request) {
+
+				customer = jsdo.eCustomer.find(function(jsrecord) {
+  					return (jsrecord.data.CustNum == custnum);
+				});				
+
+				console.log (customer);
+
+				if (customer) {
+					window.document.forms[0].name.value = customer.data.Name;
+				}
+
+/*				document.write ("<table border=1>")
+
+				jsdo.eCustomer.foreach(function(customer) {
+					//console.log(jsdo.eCustomer.Name);
+					document.write('<tr><td>' + customer.data.CustNum + '</td><td>' + customer.data.Name + '</td></tr>');
+				});	
+
+				document.write ("</table>");*/
+			}
+		});
+	});
+
+	function fetchCustomer () {
+		custnum = window.document.forms[0].custnum.value;
+
+		jsdo.fill("eCustomer.CustNum = " + custnum);
+	}
+
+	function saveChanges () {
+		name = window.document.forms[0].name.value;
+
+		var upd = { Name: name};
+
+		customer.assign (upd);
+		jsdo.saveChanges ().done (function (jsdo, success, details) {
+
+			var i, j,
+				error = "",
+				errors,
+				errorType;
+
+
+			/* all record changes invoked by saveChanges()Submit succeeded */
+			/* for example, accept all changes and redisplay records in the JSDO table */
+			jsdo.acceptChanges();
+			jsdo.eCustomer.foreach (function(jsrecord) {
+				window.document.forms[0].name.value = jsrecord.data.Name;            
+			});
+		}).fail (function (jsdo, success, details) {
+
+			var error = "";
+			errors = jsdo.eCustomer.getErrors();
+
+			for (var i = 0; i < errors.length; i++) {
+				switch(errors[i].type) {
+					case progress.data.JSDO.DATA_ERROR:
+						errorType = "Server Data Error: ";
+						break;
+					case progress.data.JSDO.RETVAL:
+						errorType = "Server App Return Value: ";
+						break;
+					case progress.data.JSDO.APP_ERROR:
+						errorType = "Server App Error #" + errors[i].errorNum + ": ";
+						break;
+					case progress.data.JSDO.ERROR:
+						errorType = "Server General Error: ";
+						break;
+				}
+				error += "\n" + "ERROR: " + errorType + errors[i].error;
+				if (errors[i].id) 
+				{
+					/* Possibly log record change information in the before-image record
+					object (j) found in the request.jsrecords array using getId()
+					*/
+					error += "\n" + "BI RECORD ID: " + errors[i].id;
+					error += "\n    " + "CHANGE: " 
+							+ details.batch.operations[0].jsrecord.data["prods:rowState"];
+					error += "\n    " + "FIELDS: ";
+					error += "\n        " + "CustNum: " + details.batch.operations[0].jsrecord.data.CustNum;
+					
+				}
+				if (errors[i].responseText) 
+				{
+					error += "\n" + "HTTP FULL TEXT: " + errors[i].responseText;
+				}
+			}
+			alert("Submit error(s) returned: " + error);
+			jsdo.rejectChanges();
+		});
+	}
+
+</script>
+
+</head>
+<body>
+
+	<form>
+			Customer Number: <input name="custnum"> <button type="button" onclick="fetchCustomer()">Fetch Customer</button> <br>
+			<br>
+			Name: <input name="name"> <button type="button" onclick="saveChanges()">Save Changes</button>
+
+	</form>
+
+</body>
+</html>

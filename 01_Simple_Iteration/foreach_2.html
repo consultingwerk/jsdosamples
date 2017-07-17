@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<script src="../jquery.min.js"></script>
+<script src="../jsdo/progress.jsdo.js"></script>
+
+<script>
+	var catalogURI = "http://localhost:8820/web/Catalog/Consultingwerk.SmartComponentsDemo.OERA.Sports2000.CustomerBusinessEntity";
+
+	var options = {
+		serviceURI: "http://localhost:8820",
+		authenticationModel: progress.data.Session.AUTH_TYPE_FORM,
+	}
+
+	session = new progress.data.JSDOSession (options);
+	
+	session.login("demo", "demo")
+	.done (function(jsdosession, result, info) {
+
+		jsdosession.addCatalog (catalogURI)
+		.done(function(jsdosession, result, details) {
+
+			jsdo = new progress.data.JSDO({ name: 'Consultingwerk.SmartComponentsDemo.OERA.Sports2000.CustomerBusinessEntity' });
+			jsdo.subscribe('AfterFill', onAfterFillCustomers, this);	
+
+			jsdo.fill ({
+					filter: { 
+						filters: [ 
+							{ field: "name", operator: "startswith", value: "Lif" }
+						]},
+					tableRef: "eCustomer",
+					top: 10,
+					sort: ["CustNum"]
+			})
+
+			function onAfterFillCustomers(jsdo, success, request) {
+				document.write ("<table border=1>")
+
+				jsdo.eCustomer.foreach(function(customer) {
+					//console.log(jsdo.eCustomer.Name);
+					document.write('<tr><td>' + customer.data.CustNum + '</td><td>' + customer.data.Name + '</td></tr>');
+				});	
+
+				document.write ("</table>");
+			}
+		});
+	});
+
+
+</script>
+
+</head>
+<body>
+</body>
+</html>
