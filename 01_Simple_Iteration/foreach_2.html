@@ -32,6 +32,7 @@
 						]},
 					tableRef: "eCustomer",
 					top: 10,
+					// skip: 10,
 					sort: ["CustNum"]
 			})
 
@@ -39,7 +40,7 @@
 				document.write ("<table border=1>")
 
 				jsdo.eCustomer.foreach(function(customer) {
-					//console.log(jsdo.eCustomer.Name);
+					console.log(customer);
 					document.write('<tr><td>' + customer.data.CustNum + '</td><td>' + customer.data.Name + '</td></tr>');
 				});	
 

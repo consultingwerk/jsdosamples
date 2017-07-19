@@ -36,18 +36,10 @@
 
 				console.log (customer);
 
+				// if available (customer) ....
 				if (customer) {
 					window.document.forms[0].name.value = customer.data.Name;
 				}
-
-/*				document.write ("<table border=1>")
-
-				jsdo.eCustomer.foreach(function(customer) {
-					//console.log(jsdo.eCustomer.Name);
-					document.write('<tr><td>' + customer.data.CustNum + '</td><td>' + customer.data.Name + '</td></tr>');
-				});	
-
-				document.write ("</table>");*/
 			}
 		});
 	});
