@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    <title>Customer Maintenance</title>
+    <link rel="stylesheet" href="../../kendoui/styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="../../kendoui/styles/kendo.default.min.css" />
+    <script src="../../kendoui/js/jquery.min.js"></script>
+    <script src="../../kendoui/js/kendo.all.min.js"></script>
+    <script src="../../jsdo40/progress.all.js"></script>   
+  </head>
+  
+  <body>
+
+    <div id="example">
+      <div id="grid"></div>
+    </div>
+
+    <script>
+      $(function() {
+      
+                    var jsdosession, dataSource;      
+            	
+                    function createGrid() {
+      				$("#grid").kendoGrid(
+      
+                    {
+                      "dataSource": dataSource,
+                      "height": 600,
+                      "filterable": {
+                        "mode": "row, menu",
+                        "operators": {
+                          "string": {
+                            "startswith": "Starts with",
+                            "eq": "Is equal to",
+                            "neq": "Is not equal to"
+                          },
+                          "number": {
+                            "gte": "Is greater than or equal to",
+                            "gt": "Is greater than",
+                            "lte": "Is less than or equal to",
+                            "lt": "Is less than",
+                            "eq": "Is equal to",
+                            "neq": "Is not equal to"
+                          },
+                          "date": {
+                            "gte": "Is greater than or equal to",
+                            "gt": "Is greater than",
+                            "lte": "Is less than or equal to",
+                            "lt": "Is less than",
+                            "eq": "Is equal to",
+                            "neq": "Is not equal to"
+                          }
+                        }
+                      },
+                      "groupable": false,
+                      "reorderable": true,
+                      "resizable": true,
+                      "sortable": true,
+                      "pageable": {
+                        "refresh": true,
+                        "pageSizes": [
+                          10,
+                          25,
+                          100
+                        ],
+                        "pageSize": 10,
+                        "buttonCount": 5
+                      },
+                      "toolbar": [
+                        "cancel",
+                        "create",
+                        "save",
+                        "pdf"
+                      ],
+                      "columns": [
+                        {
+                          "field": "CustNum",
+                          "title": "Cust Num",
+                          "type": "int",
+                          "width": "82px"
+                        },
+                        {
+                          "field": "Country",
+                          "title": "Country",
+                          "width": "132px"
+                        },
+                        {
+                          "field": "Name",
+                          "title": "Name",
+                          "width": "192px"
+                        },
+                        {
+                          "field": "Address",
+                          "title": "Address",
+                          "width": "222px"
+                        },
+                        {
+                          "field": "Address2",
+                          "title": "Address2",
+                          "width": "222px"
+                        },
+                        {
+                          "field": "City",
+                          "title": "City",
+                          "width": "162px"
+                        },
+                        {
+                          "field": "State",
+                          "title": "State",
+                          "width": "132px"
+                        },
+                        {
+                          "field": "PostalCode",
+                          "title": "Postal Code",
+                          "width": "94px"
+                        },
+                        {
+                          "field": "Contact",
+                          "title": "Contact",
+                          "width": "192px"
+                        },
+                        {
+                          "command": [
+                            "edit",
+                            "destroy"
+                          ],
+                          "title": "&nbsp;",
+                          "width": "120px"
+                        }
+                      ],
+                      "editable": {
+                        "mode": "inline"
+                      }
+                    }
+                          
+      				); }
+      					
+                    try {
+                        var serviceURI = "http://localhost:8820",
+                            jsdoSettings = {
+                                serviceURI: serviceURI,
+                                catalogURIs: serviceURI + "/web/Catalog/Consultingwerk.SmartComponentsDemo.OERA.Sports2000.CustomerBusinessEntity"
+                            },                
+                            promise;
+            
+                        // create a new session object
+                        jsdosession = new progress.data.JSDOSession(jsdoSettings);
+                        promise = jsdosession.login("", "");
+                            
+                        promise.done(function(jsdosession, result, info){
+                            jsdosession.addCatalog(jsdoSettings.catalogURIs)
+                                .done(function(jsdosession, result, details){
+            
+                                    dataSource = new kendo.data.DataSource( {
+                                                        type: "jsdo",
+                                                        serverPaging: true,
+                                                        serverFiltering: true,
+                                                        // filter: { field: "Country", operator: "eq", value: "USA" },
+                                                        serverSorting: true,
+                                                        // sort: { field: "State", dir: "desc" },
+                                                        pageSize: 10,
+                                                        transport: {
+                                                            jsdo: "Consultingwerk.SmartComponentsDemo.OERA.Sports2000.CustomerBusinessEntity",
+                                                            tableRef: "eCustomer",
+                                                            countFnName: "count"
+                                                        },
+                                                        error: function(e) {
+                                                            console.log ('Error: ', e); 
+                                                        }
+                                                    }
+                                    );
+                                
+                                    createGrid();
+                                })
+                                .fail(function(jsdosession, result, details){
+                                    alert("Error while executing addCatalog().");
+                            });
+                        });
+                        promise.fail(function(jsdosession, result, info){
+                            alert("Error while executing login().");      
+                        });        
+                    }
+                    catch (e) {
+                        alert("Error instantiating objects: " + e);
+                    }      					
+      			});
+    </script>
+  </body>
+
+</html>
